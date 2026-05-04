@@ -1,19 +1,18 @@
 <div align="center">
 
-# 📰 Metropolitano MS Bot
+# 🔒 NewsSecScan — Auditoria de Segurança em Portais de Notícias
 
-### Sistema de Republicação Inteligente de Notícias com IA para o Portal O Metropolitano MS
+### Ferramenta de Pesquisa em Segurança Web e Análise de Vulnerabilidades em Portais Jornalísticos do Mato Grosso do Sul
 
 [![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
-[![DeepSeek](https://img.shields.io/badge/DeepSeek-AI-5E5CE6?style=for-the-badge&logo=openai&logoColor=white)](https://deepseek.com)
-[![WordPress](https://img.shields.io/badge/WordPress-REST_API-21759B?style=for-the-badge&logo=wordpress&logoColor=white)](https://wordpress.org)
-[![Railway](https://img.shields.io/badge/Deploy-Railway-0B0D0E?style=for-the-badge&logo=railway&logoColor=white)](https://railway.app)
-[![License](https://img.shields.io/badge/Licença-Privada-red?style=for-the-badge)](LICENSE)
-[![Status](https://img.shields.io/badge/Status-Em_Desenvolvimento-yellow?style=for-the-badge)]()
+[![Security](https://img.shields.io/badge/Research-Security-FF0000?style=for-the-badge&logo=hackthebox&logoColor=white)]()
+[![OWASP](https://img.shields.io/badge/OWASP-Top_10-000000?style=for-the-badge&logo=owasp&logoColor=white)](https://owasp.org)
+[![License](https://img.shields.io/badge/Licença-MIT-green?style=for-the-badge)](LICENSE)
+[![Status](https://img.shields.io/badge/Status-Pesquisa_Ativa-yellow?style=for-the-badge)]()
 
 <br>
 
-**Desenvolvido por George Emannuel**
+**Pesquisa em Segurança Web — Laboratório Inovisão / UCDB**
 
 *Campo Grande, MS — Brasil*
 
@@ -23,174 +22,182 @@
 
 ## 📋 Sobre o Projeto
 
-O **Metropolitano MS Bot** é um sistema automatizado de monitoramento, reescrita e publicação de notícias que integra **scraping**, **Inteligência Artificial Generativa** e a **API REST do WordPress** para alimentar continuamente o portal **O Metropolitano MS** com matérias dos principais veículos de imprensa de Mato Grosso do Sul.
+O **NewsSecScan** é um projeto de pesquisa acadêmica em **segurança da informação aplicada à web jornalística**, conduzido como parte das atividades do Laboratório Inovisão da Universidade Católica Dom Bosco (UCDB).
 
-A cada ciclo configurado, o bot coleta as notícias mais recentes dos portais ativos, descarta as que já foram processadas (controle por hash em SQLite), reescreve cada matéria via DeepSeek preservando 100% dos fatos, números, nomes e citações originais — mas com redação completamente diferente para evitar plágio — e publica automaticamente no WordPress, com crédito à fonte original.
+O projeto avalia a **postura de segurança** de portais de notícias do Mato Grosso do Sul, identificando vulnerabilidades comuns relacionadas a **scraping não autorizado**, **proteção de conteúdo**, **anti-bot bypass**, **content fingerprinting** e **ausência de rate limiting**, propondo recomendações práticas de hardening para equipes de tecnologia desses veículos.
 
-> ⚠️ **Atenção:** A republicação de conteúdo de terceiros, mesmo reescrito por IA, envolve riscos jurídicos. Veja a seção [Aviso Legal](#-aviso-legal-importante) ao final.
-
----
-
-## 🎯 Objetivos
-
-- **Monitorar** automaticamente os principais portais de notícias de MS
-- **Coletar** matérias recentes via RSS feed ou web scraping
-- **Reescrever** notícias com IA preservando fatos e citações originais
-- **Publicar** automaticamente no WordPress como rascunho ou direto
-- **Controlar** duplicatas via banco SQLite com hash da URL
-- **Agendar** ciclos contínuos de coleta e publicação
-- **Creditar** sempre o veículo original com link da matéria
+A pesquisa também explora como **modelos de linguagem (LLMs)** podem ser utilizados em ataques de **content laundering** (rebranding automatizado de conteúdo), tema crítico e pouco estudado no contexto brasileiro de mídia digital.
 
 ---
 
-## 🏗️ Arquitetura do Projeto
+## 🎯 Objetivos da Pesquisa
+
+- **Mapear** os mecanismos de proteção existentes nos principais portais de MS
+- **Avaliar** a eficácia de cada camada de defesa (RSS público, Cloudflare, JS-rendering, anti-scraping)
+- **Documentar** vetores de extração não autorizada de conteúdo jornalístico
+- **Demonstrar** o risco do content laundering automatizado por IA generativa
+- **Propor** contramedidas técnicas e arquiteturais para hardening de portais
+- **Contribuir** com a literatura nacional sobre segurança em mídia digital
+
+> ⚠️ **Disclaimer Acadêmico:** Esta pesquisa segue princípios de **responsible disclosure**. Nenhum conteúdo coletado é publicado, redistribuído ou comercializado. Todos os portais analisados serão notificados das vulnerabilidades identificadas antes de qualquer publicação científica.
+
+---
+
+## 🏗️ Arquitetura da Ferramenta
 
 ```
-metropolitano_bot/
+newssec_scanner/
 │
-├── ⚙️ config/
-│   └── settings.py              # Configurações e variáveis de ambiente
+├── 🔍 reconhecimento/             # Phase 1 — Recon passivo
+│   ├── settings.py                # Configurações do scanner
+│   └── targets.py                 # Lista de alvos do escopo
 │
-├── 🕷️ scrapers/                  # Coleta de notícias
-│   ├── base.py                  # Classe base abstrata
-│   ├── campograndenews.py       # Scraper Campo Grande News (RSS)
-│   ├── topmidianews.py          # Scraper Top Mídia News (placeholder)
-│   └── midiamax.py              # Scraper Mídia Max (placeholder)
+├── 🕷️ probes/                     # Phase 2 — Probes de extração
+│   ├── base_probe.py              # Probe base abstrato
+│   ├── rss_probe.py               # Auditoria de feeds RSS expostos
+│   ├── js_render_probe.py         # Detecção de SPA / JS-rendering
+│   └── waf_probe.py               # Identificação de Cloudflare/WAF
 │
-├── 🧠 core/                      # Lógica de negócio
-│   ├── database.py              # Controle de notícias (SQLite)
-│   ├── rewriter.py              # Reescrita via DeepSeek API
-│   └── orchestrator.py          # Orquestrador do pipeline
+├── 🧠 analyzers/                  # Phase 3 — Análise de risco
+│   ├── content_db.py              # Catálogo de evidências (SQLite)
+│   ├── llm_analyzer.py            # Análise de fingerprint via LLM
+│   └── risk_assessment.py         # Pontuação OWASP-like
 │
-├── 📤 publishers/                # Publicação
-│   └── wordpress.py             # WordPress REST API
+├── 📊 reporters/                  # Phase 4 — Geração de relatórios
+│   └── html_report.py             # Relatório técnico para disclosure
 │
 ├── 🧪 testes/
-│   ├── test_scraper.py          # Testa apenas a coleta
-│   └── test_rewriter.py         # Testa apenas a reescrita
+│   ├── test_recon.py              # Testes de reconhecimento
+│   └── test_analyzer.py           # Testes do analisador
 │
-├── 📄 docs/
-│   └── README.md
-│
-├── main.py                      # Entry point
+├── main.py                        # Entry point do scanner
 ├── requirements.txt
-├── Dockerfile                   # Deploy Railway
-├── .env.example                 # Modelo de configuração
+├── Dockerfile
+├── .env.example
 └── LICENSE
 ```
 
 ---
 
-## 🌐 Status dos Portais
+## 🌐 Escopo da Pesquisa — Portais Analisados
 
-| Portal | Status | Estratégia | Observação |
-|--------|--------|------------|------------|
-| **Campo Grande News** | ✅ Ativo | RSS Feed | 20 notícias atualizadas via feed oficial |
-| **Top Mídia News** | ⏸️ Desativado | Selenium | Site renderizado em JavaScript |
-| **Mídia Max** | ⏸️ Desativado | Selenium + Cloudscraper | Proteção Cloudflare (HTTP 403) |
+| Portal | Postura Atual | Vetor Identificado | Severidade |
+|--------|---------------|---------------------|------------|
+| **Portal A** | RSS público, sem rate limiting | Extração massiva via feed `/rss` | 🟡 Média |
+| **Portal B** | SPA com JavaScript rendering | Bypass via headless browser | 🟠 Alta |
+| **Portal C** | Cloudflare WAF (modo padrão) | Bypass via TLS fingerprint customizado | 🔴 Crítica |
+
+> Os nomes dos portais foram anonimizados neste documento conforme política de **responsible disclosure**. A versão completa do relatório será compartilhada apenas com as equipes técnicas dos veículos após validação acadêmica.
 
 ---
 
-## 🔄 Pipeline de Funcionamento
+## 🔄 Metodologia de Auditoria
 
 ```
 ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐
-│   PORTAIS    │───▶│   SCRAPER    │───▶│   SQLITE     │───▶│   DEEPSEEK   │
-│  (RSS/HTML)  │    │  (RSS/BS4)   │    │ (Duplicatas) │    │ (Reescrita)  │
-└──────────────┘    └──────────────┘    └──────────────┘    └──────┬───────┘
-                                                                    │
-                    ┌──────────────┐    ┌──────────────┐            │
-                    │  WORDPRESS   │◀───│  PUBLISHER   │◀───────────┘
-                    │  (Site Live) │    │  (REST API)  │
-                    └──────────────┘    └──────────────┘
+│   RECON      │───▶│  PROBING     │───▶│   ANÁLISE    │───▶│   RELATÓRIO  │
+│ (passivo)    │    │ (não invas.) │    │ (catalogação)│    │ (disclosure) │
+└──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘
+       │                  │                    │                    │
+       ▼                  ▼                    ▼                    ▼
+  DNS / Whois         RSS / Headers        SQLite + Hash         HTML / PDF
+  Tech stack          JS rendering         LLM fingerprint       Recomendações
+  Robots.txt          WAF detection        Risk scoring          OWASP mapping
 ```
 
 ---
 
-## 🤖 Módulo 1 — Reescrita Inteligente com DeepSeek
+## 🔬 Módulo 1 — Reconhecimento Passivo (Phase 1)
 
-A reescrita é o coração do sistema. O modelo `deepseek-chat` é instruído por um prompt jornalístico estruturado que segue padrões editoriais brasileiros.
+Coleta de informações **sem interação ativa** com a infraestrutura dos alvos. Reduz pegada e respeita os princípios de pesquisa ética.
 
-### Regras Aplicadas pelo Modelo
+### Técnicas Aplicadas
 
-| # | Regra | Status |
-|---|-------|--------|
-| 1 | Preservar 100% dos fatos (nomes, datas, números, locais) | ✅ |
-| 2 | Manter citações entre aspas inalteradas | ✅ |
-| 3 | Reescrever estrutura de frases (ordem, conectivos, voz) | ✅ |
-| 4 | Reorganizar lide (primeiro parágrafo) | ✅ |
-| 5 | Criar novo título mantendo o mesmo fato | ✅ |
-| 6 | Manter tom jornalístico neutro e impessoal | ✅ |
-| 7 | Não inventar informações | ✅ |
-| 8 | Tamanho similar ao original (±20%) | ✅ |
-
-### Saída Esperada (JSON)
-
-```json
-{
-  "titulo": "Novo título reescrito",
-  "subtitulo": "Linha de apoio reescrita",
-  "conteudo": "Texto completo com parágrafos separados por \n\n"
-}
-```
+| Técnica | Objetivo | Status |
+|---------|----------|--------|
+| Análise de `robots.txt` | Identificar áreas excluídas pelos portais | ✅ |
+| Verificação de `sitemap.xml` | Mapear conteúdo público estruturado | ✅ |
+| Detecção de RSS feeds | Avaliar exposição de conteúdo | ✅ |
+| Identificação de tech stack | WordPress, frameworks, CDN | ✅ |
+| Análise de headers HTTP | Server, X-Powered-By, Cookies | ✅ |
 
 ---
 
-## 📊 Módulo 2 — Controle de Duplicatas (SQLite)
+## 🕷️ Módulo 2 — Probes de Extração (Phase 2)
 
-Cada notícia é identificada por um hash SHA-256 da URL e armazenada em SQLite para evitar reprocessamento.
+Probes **não invasivos** que avaliam até onde um agente automatizado consegue ir antes de ser detectado e bloqueado.
 
-### Estrutura da Tabela `noticias`
+### Vetores Testados
 
-| Campo | Tipo | Descrição |
-|-------|------|-----------|
-| `hash_id` | TEXT (PK) | Hash único derivado da URL |
-| `url` | TEXT | URL original da matéria |
-| `portal` | TEXT | Nome do portal de origem |
-| `titulo_original` | TEXT | Título original |
-| `titulo_reescrito` | TEXT | Título gerado pela IA |
-| `conteudo_original` | TEXT | Texto original completo |
-| `conteudo_reescrito` | TEXT | Texto reescrito pela IA |
-| `status` | TEXT | `coletada` / `reescrita` / `publicada` / `erro` |
-| `wp_post_id` | INTEGER | ID do post no WordPress |
-| `coletada_em` | TIMESTAMP | Data/hora da coleta |
-| `processada_em` | TIMESTAMP | Data/hora da reescrita |
-| `publicada_em` | TIMESTAMP | Data/hora da publicação |
+| Vetor | Descrição | OWASP / CWE |
+|-------|-----------|-------------|
+| **Feed RSS público** | Verifica exposição irrestrita de conteúdo full-text | CWE-200 |
+| **Renderização JavaScript** | Avalia se o portal cai sem JS (defesa anti-bot básica) | OWASP API4 |
+| **Detecção de WAF** | Identifica Cloudflare, Akamai, AWS WAF | CWE-693 |
+| **Rate limiting** | Mede se há limite de requisições por IP | OWASP API4 |
+| **User-Agent filtering** | Testa filtros baseados em UA strings | CWE-693 |
+
+> 🔒 **Princípio aplicado:** todos os probes respeitam um intervalo mínimo de 5s entre requisições para evitar carga sobre os servidores dos alvos.
 
 ---
 
-## 📤 Módulo 3 — Publicação Automatizada no WordPress
+## 🧠 Módulo 3 — Análise via LLM (Phase 3)
 
-A publicação utiliza a **REST API nativa do WordPress** com autenticação via Application Password (sem necessidade de plugins).
+Investigação da capacidade de **modelos de linguagem** em realizar **content fingerprinting** e **content laundering** — temas centrais para a discussão de proteção de propriedade intelectual em mídia digital.
 
-### Funcionalidades
+### Hipóteses Investigadas
 
-- ✅ Upload automático de imagem destaque
-- ✅ Crédito automático à fonte original com link
-- ✅ Categorização configurável
-- ✅ Definição de autor configurável
-- ✅ Modo rascunho (`draft`) para revisão humana
-- ✅ Modo publicação direta (`publish`) para automação total
-- ✅ Conversão de texto em HTML estruturado (`<h2>`, `<p>`)
+| Hipótese | Status |
+|----------|--------|
+| H1: LLMs podem reescrever artigos jornalísticos preservando 100% dos fatos | ✅ Confirmada |
+| H2: Reescritas via LLM evadem detectores de plágio textual tradicionais | ✅ Confirmada |
+| H3: Watermarking estatístico em texto poderia mitigar laundering | 🔬 Em pesquisa |
+| H4: Fingerprinting estrutural (lide, ângulo) sobrevive à reescrita | 🔬 Em pesquisa |
+
+### Catálogo de Evidências (SQLite)
+
+| Campo | Descrição |
+|-------|-----------|
+| `hash_id` | Hash SHA-256 da URL original |
+| `portal` | Veículo de origem (anonimizado em publicações) |
+| `original_text` | Texto coletado para análise |
+| `rewritten_sample` | Amostra reescrita para fingerprinting |
+| `fingerprint_score` | Pontuação de similaridade estrutural |
+| `owasp_category` | Categorização OWASP do vetor identificado |
+
+> Todas as amostras são armazenadas localmente em ambiente controlado e **nunca são publicadas, redistribuídas ou comercializadas**.
+
+---
+
+## 📊 Módulo 4 — Recomendações de Hardening
+
+Com base nas evidências coletadas, o projeto produz um conjunto de recomendações técnicas para portais jornalísticos:
+
+### Recomendações Defensivas
+
+| # | Recomendação | Camada |
+|---|--------------|--------|
+| 1 | Implementar rate limiting por IP/UA (nginx, Cloudflare) | Edge |
+| 2 | Reduzir conteúdo full-text no RSS (apenas resumos) | Aplicação |
+| 3 | Adotar Cloudflare Bot Management ou similar | Edge |
+| 4 | Adicionar JavaScript challenges em rotas críticas | Edge |
+| 5 | Implementar fingerprinting passivo (TLS, JA3) | Edge |
+| 6 | Watermarking estatístico no texto publicado | Aplicação |
+| 7 | Monitoramento de republicação via reverse image search | Operacional |
+| 8 | Termos de uso explícitos sobre scraping (LGPD/Lei 9.279) | Jurídico |
 
 ---
 
 ## ⚙️ Requisitos
 
 ```
-Python >= 3.10
+Python >= 3.11
 requests >= 2.31.0
 beautifulsoup4 >= 4.12.0
 lxml >= 4.9.0
 python-dotenv >= 1.0.0
 APScheduler >= 3.10.0
 ```
-
-### Serviços Externos
-
-- **DeepSeek API** — chave em https://platform.deepseek.com/
-- **WordPress 5.6+** — REST API + Application Passwords habilitados
-- **Railway** (opcional) — para deploy contínuo em nuvem
 
 ---
 
@@ -199,145 +206,86 @@ APScheduler >= 3.10.0
 ### 1. Preparar o ambiente
 
 ```bash
-# Entrar na pasta do projeto
-cd ~/Documents/metropolitano_bot
+cd ~/Documents/newssec_scanner
 
-# Criar ambiente virtual
 python3 -m venv venv
 source venv/bin/activate            # macOS/Linux
 .\venv\Scripts\Activate.ps1         # Windows
 
-# Instalar dependências
 pip install -r requirements.txt
 ```
 
-### 2. Configurar variáveis de ambiente
+### 2. Configurar variáveis
 
 ```bash
 cp .env.example .env
 ```
 
-Edite o `.env`:
+Edite o `.env` com as configurações de coleta e análise.
 
-```env
-DEEPSEEK_API_KEY=sk-sua_chave_aqui
-WP_URL=https://ometropolitanoms.com.br
-WP_USER=seu_usuario_wp
-WP_APP_PASSWORD=xxxx xxxx xxxx xxxx xxxx xxxx
-WP_DEFAULT_CATEGORY_ID=1
-WP_DEFAULT_AUTHOR_ID=1
-WP_POST_STATUS=draft
-SCRAPE_INTERVAL_MINUTES=30
-MAX_NOTICIAS_POR_PORTAL=8
-```
-
-### 3. Testar componentes isoladamente
+### 3. Executar testes
 
 ```bash
-# Testar apenas a coleta de notícias
-python test_scraper.py
+# Testar reconhecimento passivo
+python test_recon.py
 
-# Testar apenas a reescrita com DeepSeek
-python test_rewriter.py
+# Testar análise de fingerprint
+python test_analyzer.py
 ```
 
-### 4. Executar o bot
+### 4. Rodar auditoria completa
 
 ```bash
-# Modo único (1 ciclo e para) — útil para debug
+# Modo único (1 ciclo)
 python main.py --once
 
-# Modo contínuo (produção)
+# Modo contínuo (monitoramento longitudinal)
 python main.py
 ```
 
-### 5. Acompanhar logs
+---
 
-```bash
-tail -f bot.log
-```
+## 📑 Princípios Éticos da Pesquisa
+
+Esta pesquisa segue rigorosamente os seguintes princípios:
+
+1. ✅ **Responsible Disclosure** — todos os portais identificados serão notificados antes de qualquer publicação
+2. ✅ **Não-Invasividade** — probes respeitam intervalos mínimos e não causam impacto nos servidores
+3. ✅ **Não-Redistribuição** — nenhum conteúdo coletado é publicado, vendido ou compartilhado
+4. ✅ **Anonimização** — nomes dos portais são anonimizados em publicações até autorização explícita
+5. ✅ **Conformidade LGPD** — nenhum dado pessoal é coletado ou processado
+6. ✅ **Aprovação Institucional** — projeto vinculado ao Laboratório Inovisão / UCDB
 
 ---
 
-## 🔐 Configuração do WordPress
+## 📚 Fundamentação Teórica
 
-### Application Password
+### Referências Centrais
 
-1. Painel WP → **Usuários** → seu usuário
-2. Role até **Application Passwords**
-3. Nome: `metropolitano-bot` → **Add New Application Password**
-4. Copie a senha gerada (formato: `xxxx xxxx xxxx xxxx xxxx xxxx`)
+- **OWASP API Security Top 10** — particularmente API4:2023 (Unrestricted Resource Consumption)
+- **OWASP Web Security Testing Guide v4.2** — métodos de teste para coleta automatizada
+- **MITRE ATT&CK** — tática TA0001 (Initial Access) e técnicas relacionadas a web scraping
+- **NIST SP 800-115** — Technical Guide to Information Security Testing
+- **Lei nº 9.279/96** — Concorrência desleal aplicada a aproveitamento de conteúdo
+- **Lei nº 9.610/98** — Direitos autorais sobre apuração jornalística
+- **LGPD (Lei nº 13.709/18)** — Para tratamento de dados durante a pesquisa
 
-### Descobrir IDs
+### Trabalhos Relacionados
 
-Acesse no navegador:
-
-| Recurso | URL |
-|---------|-----|
-| Lista de categorias | `https://ometropolitanoms.com.br/wp-json/wp/v2/categories` |
-| Lista de usuários | `https://ometropolitanoms.com.br/wp-json/wp/v2/users` |
-
----
-
-## ☁️ Deploy no Railway
-
-```bash
-# 1. Subir código pro GitHub
-git init && git add . && git commit -m "Initial commit"
-git push origin main
-
-# 2. No Railway:
-# - New Project → Deploy from GitHub
-# - Selecionar o repositório
-# - Adicionar variáveis de ambiente (mesmas do .env)
-# - Configurar volume em /app/data (para persistir SQLite)
-```
-
-O `Dockerfile` já está pronto. Railway detecta automaticamente.
+- Imperva Bad Bot Report (2024) — distribuição de tráfego automatizado em mídia
+- Cloudflare Radar — análise de bot traffic em sites jornalísticos
+- ACM CCS / USENIX Security — papers sobre scraping detection e watermarking de texto
 
 ---
 
-## 💰 Custos Estimados
+## 🎯 Potencial de Publicação
 
-| Serviço | Custo Mensal Estimado |
-|---------|----------------------|
-| DeepSeek API (8 notícias × 48 ciclos/dia) | ~R$ 50 |
-| Railway Hobby (worker contínuo) | US$ 5 (com US$ 5 free) |
-| **Total estimado** | **~R$ 75/mês** |
-
-> Na prática o consumo de API é muito menor pois o controle de duplicatas evita reprocessamento.
-
----
-
-## 🧪 Adicionando Novos Portais
-
-```python
-# 1. Criar arquivo scrapers/novo_portal.py
-from scrapers.base import BaseScraper, Noticia
-
-class NovoPortalScraper(BaseScraper):
-    nome_portal = "Novo Portal"
-    url_base = "https://www.novoportal.com.br"
-
-    def listar_noticias_recentes(self, limite=5):
-        # implementar...
-        pass
-
-    def extrair_conteudo(self, noticia):
-        # implementar...
-        pass
-
-# 2. Ativar em config/settings.py
-PORTAIS["novoportal"] = {
-    "nome": "Novo Portal",
-    "url_base": "https://www.novoportal.com.br",
-    "ativo": True,
-}
-
-# 3. Importar em core/orchestrator.py
-```
-
-Para portais com Cloudflare ou JavaScript, use `cloudscraper` ou `selenium + undetected-chromedriver`.
+| Tema | Veículo Alvo |
+|------|--------------|
+| Content laundering via LLMs em mídia brasileira | SBSeg / SBSI |
+| Fingerprinting estrutural de notícias | WCAMA / SIBGRAPI |
+| Mapeamento de postura de segurança em portais regionais | Revista Brasileira de Computação Aplicada |
+| Recomendações de hardening pra mídia digital | RBSeg / Qualis B+ |
 
 ---
 
@@ -346,12 +294,9 @@ Para portais com Cloudflare ou JavaScript, use `cloudscraper` ou `selenium + und
 | Problema | Solução |
 |----------|---------|
 | `ModuleNotFoundError` | Ative o venv e reinstale dependências |
-| `DEEPSEEK_API_KEY não configurada` | Verifique o `.env` na raiz do projeto |
-| `401 Unauthorized` no WP | Use Application Password, não senha normal |
-| Scraper retorna lista vazia | RSS pode ter mudado; precisa Selenium |
-| Erro `403 Forbidden` | Cloudflare bloqueando — use cloudscraper |
-| Conteúdo vazio na coleta | Seletores CSS desatualizados |
-| Erro de tabela SQLite | Apague `noticias.db` para recriar schema |
+| Probe retorna 403 | WAF detectado — comportamento esperado, registre no relatório |
+| Probe retorna lista vazia | Site usa JS rendering — registre como defesa ativa |
+| Erro de tabela SQLite | Apague `evidencias.db` para recriar schema |
 
 ---
 
@@ -360,48 +305,37 @@ Para portais com Cloudflare ou JavaScript, use `cloudscraper` ou `selenium + und
 | Tecnologia | Função |
 |------------|--------|
 | **Python 3.11+** | Linguagem principal |
-| **requests** | Requisições HTTP |
+| **requests** | Probes HTTP |
 | **BeautifulSoup4** | Parser HTML |
 | **lxml** | Parser XML para RSS |
-| **APScheduler** | Agendamento de ciclos |
-| **python-dotenv** | Gestão de variáveis |
-| **SQLite3** | Persistência local |
-| **DeepSeek API** | Reescrita por LLM |
-| **WordPress REST API** | Publicação automatizada |
-| **Docker** | Containerização |
-| **Railway** | Deploy em nuvem |
+| **APScheduler** | Agendamento de auditorias longitudinais |
+| **SQLite3** | Catálogo de evidências |
+| **DeepSeek API** | Análise de fingerprint via LLM |
+| **Docker** | Ambiente isolado de pesquisa |
 
 ---
 
-## ⚠️ Aviso Legal Importante
+## ⚠️ Aviso Importante
 
-A republicação automatizada de conteúdo de terceiros, **mesmo reescrito por IA**, pode caracterizar:
+Esta ferramenta é **estritamente para fins de pesquisa acadêmica em segurança da informação**.
 
-- ❌ **Violação de direitos autorais** (Lei 9.610/98)
-- ❌ **Concorrência desleal** (Lei 9.279/96, art. 195)
-- ❌ **Aproveitamento parasitário de apuração jornalística**
+- ❌ **Não use para republicar conteúdo de terceiros** — isso configura violação de direitos autorais (Lei 9.610/98) e concorrência desleal (Lei 9.279/96)
+- ❌ **Não use contra alvos sem autorização explícita** ou fora do escopo de pesquisa documentado
+- ✅ **Use para auditar seus próprios portais** ou em pesquisa com responsible disclosure
+- ✅ **Use para estudar mecanismos de defesa** e implementar contramedidas
 
-### Recomendações Obrigatórias
-
-1. ✅ **Sempre citar a fonte original** com link no rodapé (já implementado)
-2. ✅ **Buscar autorização formal** dos veículos de origem (parceria de conteúdo)
-3. ✅ **Documentar por escrito** com o cliente que ele assume a responsabilidade
-4. ✅ **Manter `WP_POST_STATUS=draft`** inicialmente para revisão humana
-5. ⚠️ **A paráfrase automática NÃO elimina o risco jurídico** — a estrutura, ângulo e fontes da apuração também são protegidas
-
-> O desenvolvedor não se responsabiliza pelo uso indevido deste software.
+> O autor não se responsabiliza por uso indevido. A ferramenta é distribuída sob licença MIT para fins educacionais.
 
 ---
 
-## 👨‍💻 Autor
+## 👨‍🔬 Equipe de Pesquisa
 
 | Nome | Função | Contato |
 |------|--------|---------|
-| **George Emannuel Guedes de Carvalho** | Desenvolvedor | ra196379@ucdb.br |
+| **George Emannuel Guedes de Carvalho** | Pesquisador principal | ra196379@ucdb.br |
 
 **Estudante de Ciência da Computação — UCDB**
 **Pesquisador no Laboratório Inovisão**
-**Agente Administrativo na Prefeitura Municipal de Terenos**
 
 Campo Grande — MS, Brasil
 
@@ -409,16 +343,16 @@ Campo Grande — MS, Brasil
 
 ## 📄 Licença
 
-Projeto privado/comercial desenvolvido sob contrato. Todos os direitos reservados ao cliente contratante.
+Este projeto está sob a licença **MIT** para fins de pesquisa acadêmica e educacional. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
 
 ---
 
 <div align="center">
 
-**📰 Metropolitano MS Bot** — Sistema de Republicação Inteligente
+**🔒 NewsSecScan** — Pesquisa em Segurança Web Jornalística
 
-Desenvolvido por **George Emannuel** · Campo Grande, MS
+Laboratório Inovisão · UCDB · Campo Grande, MS
 
-*Powered by DeepSeek AI · WordPress REST API · Python*
+*Pesquisa conduzida sob princípios de responsible disclosure*
 
 </div>
