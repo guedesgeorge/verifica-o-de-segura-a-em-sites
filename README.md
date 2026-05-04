@@ -1,18 +1,18 @@
 <div align="center">
 
-# 🔒 NewsSecScan — Auditoria de Segurança em Portais de Notícias
+# ⛪ ArqCGR Scraper — Coletor de Paróquias e Horários de Missa
 
-### Ferramenta de Pesquisa em Segurança Web e Análise de Vulnerabilidades em Portais Jornalísticos do Mato Grosso do Sul
+### Ferramenta de Web Scraping para Mapeamento Pastoral da Arquidiocese de Campo Grande
 
-[![Python](https://img.shields.io/badge/Python-3.11+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
-[![Security](https://img.shields.io/badge/Research-Security-FF0000?style=for-the-badge&logo=hackthebox&logoColor=white)]()
-[![OWASP](https://img.shields.io/badge/OWASP-Top_10-000000?style=for-the-badge&logo=owasp&logoColor=white)](https://owasp.org)
+[![Python](https://img.shields.io/badge/Python-3.9+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
+[![BeautifulSoup](https://img.shields.io/badge/BeautifulSoup-4.12+-FFB91A?style=for-the-badge&logo=python&logoColor=white)]()
+[![Requests](https://img.shields.io/badge/Requests-HTTP-2CA02C?style=for-the-badge&logo=python&logoColor=white)]()
 [![License](https://img.shields.io/badge/Licença-MIT-green?style=for-the-badge)](LICENSE)
-[![Status](https://img.shields.io/badge/Status-Pesquisa_Ativa-yellow?style=for-the-badge)]()
+[![Status](https://img.shields.io/badge/Status-Funcional-brightgreen?style=for-the-badge)]()
 
 <br>
 
-**Pesquisa em Segurança Web — Laboratório Inovisão / UCDB**
+**Projeto Pessoal — Mapeamento Pastoral**
 
 *Campo Grande, MS — Brasil*
 
@@ -22,181 +22,172 @@
 
 ## 📋 Sobre o Projeto
 
-O **NewsSecScan** é um projeto de pesquisa acadêmica em **segurança da informação aplicada à web jornalística**, conduzido como parte das atividades do Laboratório Inovisão da Universidade Católica Dom Bosco (UCDB).
+O **ArqCGR Scraper** é uma ferramenta automatizada de coleta e estruturação de dados pastorais a partir do site oficial da [Arquidiocese de Campo Grande](https://arquidiocesedecampogrande.org.br).
 
-O projeto avalia a **postura de segurança** de portais de notícias do Mato Grosso do Sul, identificando vulnerabilidades comuns relacionadas a **scraping não autorizado**, **proteção de conteúdo**, **anti-bot bypass**, **content fingerprinting** e **ausência de rate limiting**, propondo recomendações práticas de hardening para equipes de tecnologia desses veículos.
+A ferramenta navega pela seção **Nossas Paróquias**, percorre cada uma das 54 páginas paroquiais individuais e extrai informações estruturadas — incluindo **forania**, **endereço completo**, **contatos** e a **tabela de horários de celebrações**, com tipo, dia da semana, horário e observações pastorais.
 
-A pesquisa também explora como **modelos de linguagem (LLMs)** podem ser utilizados em ataques de **content laundering** (rebranding automatizado de conteúdo), tema crítico e pouco estudado no contexto brasileiro de mídia digital.
-
----
-
-## 🎯 Objetivos da Pesquisa
-
-- **Mapear** os mecanismos de proteção existentes nos principais portais de MS
-- **Avaliar** a eficácia de cada camada de defesa (RSS público, Cloudflare, JS-rendering, anti-scraping)
-- **Documentar** vetores de extração não autorizada de conteúdo jornalístico
-- **Demonstrar** o risco do content laundering automatizado por IA generativa
-- **Propor** contramedidas técnicas e arquiteturais para hardening de portais
-- **Contribuir** com a literatura nacional sobre segurança em mídia digital
-
-> ⚠️ **Disclaimer Acadêmico:** Esta pesquisa segue princípios de **responsible disclosure**. Nenhum conteúdo coletado é publicado, redistribuído ou comercializado. Todos os portais analisados serão notificados das vulnerabilidades identificadas antes de qualquer publicação científica.
+O resultado final são dois arquivos prontos para uso: **JSON estruturado** para integração com aplicações e **CSV** para análise em planilhas.
 
 ---
 
-## 🏗️ Arquitetura da Ferramenta
+## 🎯 Objetivos da Ferramenta
+
+- **Mapear** todas as paróquias da Arquidiocese de Campo Grande e suas foranias
+- **Extrair** os horários de missas de forma estruturada e padronizada
+- **Consolidar** informações de contato (endereço, telefone, e-mail) em base única
+- **Disponibilizar** os dados em formatos abertos (JSON, CSV) para reuso pastoral
+- **Automatizar** atualizações periódicas conforme mudanças no site oficial
+- **Servir de base** para futuras aplicações: bots, apps mobile, sites informativos
+
+---
+
+## 🏗️ Estrutura do Projeto
 
 ```
-newssec_scanner/
+lista igreja/
 │
-├── 🔍 reconhecimento/             # Phase 1 — Recon passivo
-│   ├── settings.py                # Configurações do scanner
-│   └── targets.py                 # Lista de alvos do escopo
+├── 🕷️ scraper_arqcgr.py          # Script principal de scraping
 │
-├── 🕷️ probes/                     # Phase 2 — Probes de extração
-│   ├── base_probe.py              # Probe base abstrato
-│   ├── rss_probe.py               # Auditoria de feeds RSS expostos
-│   ├── js_render_probe.py         # Detecção de SPA / JS-rendering
-│   └── waf_probe.py               # Identificação de Cloudflare/WAF
+├── 📂 saida/                      # Arquivos gerados após execução
+│   ├── paroquias_arqcgr.json     # Dados estruturados (JSON)
+│   └── paroquias_arqcgr.csv      # Planilha (CSV - delimitador `;`)
 │
-├── 🧠 analyzers/                  # Phase 3 — Análise de risco
-│   ├── content_db.py              # Catálogo de evidências (SQLite)
-│   ├── llm_analyzer.py            # Análise de fingerprint via LLM
-│   └── risk_assessment.py         # Pontuação OWASP-like
-│
-├── 📊 reporters/                  # Phase 4 — Geração de relatórios
-│   └── html_report.py             # Relatório técnico para disclosure
-│
-├── 🧪 testes/
-│   ├── test_recon.py              # Testes de reconhecimento
-│   └── test_analyzer.py           # Testes do analisador
-│
-├── main.py                        # Entry point do scanner
-├── requirements.txt
-├── Dockerfile
-├── .env.example
-└── LICENSE
+├── 📄 README.md                   # Este arquivo
+└── 📄 requirements.txt            # Dependências do projeto
 ```
 
 ---
 
-## 🌐 Escopo da Pesquisa — Portais Analisados
+## ⛪ Escopo da Coleta — Paróquias Mapeadas
 
-| Portal | Postura Atual | Vetor Identificado | Severidade |
-|--------|---------------|---------------------|------------|
-| **Portal A** | RSS público, sem rate limiting | Extração massiva via feed `/rss` | 🟡 Média |
-| **Portal B** | SPA com JavaScript rendering | Bypass via headless browser | 🟠 Alta |
-| **Portal C** | Cloudflare WAF (modo padrão) | Bypass via TLS fingerprint customizado | 🔴 Crítica |
+| Forania | Quantidade | Cobertura |
+|---------|------------|-----------|
+| **Centro** | ~8 paróquias | Catedral e centro de Campo Grande |
+| **Norte / Sul / Leste / Oeste** | ~30 paróquias | Bairros de Campo Grande |
+| **Sudoeste** | ~5 paróquias | Região sudoeste de CG |
+| **Rural** | ~10 paróquias | Sidrolândia, Terenos, Jaraguari, Bandeirantes, Anhanduí, Rochedo, Corguinho, Ribas do Rio Pardo |
 
-> Os nomes dos portais foram anonimizados neste documento conforme política de **responsible disclosure**. A versão completa do relatório será compartilhada apenas com as equipes técnicas dos veículos após validação acadêmica.
+> **Total:** 54 paróquias mapeadas — incluindo Catedral, Santuários (Nossa Senhora da Abadia, São Judas Tadeu, Nossa Senhora do Perpétuo Socorro, Santo Antônio de Pádua/Terenos), Capelania Hospitalar e Paróquia Universitária.
 
 ---
 
-## 🔄 Metodologia de Auditoria
+## 🔄 Fluxo de Execução
 
 ```
 ┌──────────────┐    ┌──────────────┐    ┌──────────────┐    ┌──────────────┐
-│   RECON      │───▶│  PROBING     │───▶│   ANÁLISE    │───▶│   RELATÓRIO  │
-│ (passivo)    │    │ (não invas.) │    │ (catalogação)│    │ (disclosure) │
+│   LISTAGEM   │───▶│   PARSING    │───▶│  EXTRAÇÃO    │───▶│    SAÍDA     │
+│  (54 URLs)   │    │ (HTML→Soup)  │    │ (regex+CSS)  │    │ (JSON+CSV)   │
 └──────────────┘    └──────────────┘    └──────────────┘    └──────────────┘
        │                  │                    │                    │
        ▼                  ▼                    ▼                    ▼
-  DNS / Whois         RSS / Headers        SQLite + Hash         HTML / PDF
-  Tech stack          JS rendering         LLM fingerprint       Recomendações
-  Robots.txt          WAF detection        Risk scoring          OWASP mapping
+ /nossas-paroquias    BeautifulSoup       Tabela horários      paroquias.json
+ Lista de links       lxml parser         Info de contato      paroquias.csv
+ Deduplicação         Limpeza HTML        Forania              UTF-8 + BOM
 ```
 
 ---
 
-## 🔬 Módulo 1 — Reconhecimento Passivo (Phase 1)
+## 🔍 Módulo 1 — Listagem de Paróquias
 
-Coleta de informações **sem interação ativa** com a infraestrutura dos alvos. Reduz pegada e respeita os princípios de pesquisa ética.
+Acessa a página `arquidiocesedecampogrande.org.br/nossas-paroquias/` e extrai os links de todas as 54 paróquias da Arquidiocese.
 
 ### Técnicas Aplicadas
 
 | Técnica | Objetivo | Status |
 |---------|----------|--------|
-| Análise de `robots.txt` | Identificar áreas excluídas pelos portais | ✅ |
-| Verificação de `sitemap.xml` | Mapear conteúdo público estruturado | ✅ |
-| Detecção de RSS feeds | Avaliar exposição de conteúdo | ✅ |
-| Identificação de tech stack | WordPress, frameworks, CDN | ✅ |
-| Análise de headers HTTP | Server, X-Powered-By, Cookies | ✅ |
+| Filtro por padrão de URL `/paroquias/<slug>/` | Identificar links de páginas individuais | ✅ |
+| Deduplicação por URL canônica | Evitar processamento duplicado | ✅ |
+| Filtro de texto mínimo | Descartar links de ícones e botões | ✅ |
+| Normalização de URLs | Garantir formato consistente com `urljoin` | ✅ |
 
 ---
 
-## 🕷️ Módulo 2 — Probes de Extração (Phase 2)
+## 🕷️ Módulo 2 — Extração de Dados Paroquiais
 
-Probes **não invasivos** que avaliam até onde um agente automatizado consegue ir antes de ser detectado e bloqueado.
+Visita cada página individual e extrai dados estruturados usando uma combinação de **parsing de tabela HTML** e **regex** sobre o texto limpo da página.
 
-### Vetores Testados
+### Campos Extraídos
 
-| Vetor | Descrição | OWASP / CWE |
-|-------|-----------|-------------|
-| **Feed RSS público** | Verifica exposição irrestrita de conteúdo full-text | CWE-200 |
-| **Renderização JavaScript** | Avalia se o portal cai sem JS (defesa anti-bot básica) | OWASP API4 |
-| **Detecção de WAF** | Identifica Cloudflare, Akamai, AWS WAF | CWE-693 |
-| **Rate limiting** | Mede se há limite de requisições por IP | OWASP API4 |
-| **User-Agent filtering** | Testa filtros baseados em UA strings | CWE-693 |
+| Campo | Origem | Método |
+|-------|--------|--------|
+| **Nome da paróquia** | Título da página | Texto do link |
+| **Forania** | Bloco "Forania" | Regex contextual |
+| **Ano de criação** | Bloco "Ano da criação" | Regex contextual |
+| **Endereço** | Bloco "Endereço" | Regex multi-linha |
+| **Telefone** | Texto da página | Regex `(XX) XXXXX-XXXX` |
+| **E-mail** | Texto da página | Regex de e-mail |
+| **Horários de celebrações** | Tabela "Horário das celebrações" | Parser de `<table>` |
 
-> 🔒 **Princípio aplicado:** todos os probes respeitam um intervalo mínimo de 5s entre requisições para evitar carga sobre os servidores dos alvos.
-
----
-
-## 🧠 Módulo 3 — Análise via LLM (Phase 3)
-
-Investigação da capacidade de **modelos de linguagem** em realizar **content fingerprinting** e **content laundering** — temas centrais para a discussão de proteção de propriedade intelectual em mídia digital.
-
-### Hipóteses Investigadas
-
-| Hipótese | Status |
-|----------|--------|
-| H1: LLMs podem reescrever artigos jornalísticos preservando 100% dos fatos | ✅ Confirmada |
-| H2: Reescritas via LLM evadem detectores de plágio textual tradicionais | ✅ Confirmada |
-| H3: Watermarking estatístico em texto poderia mitigar laundering | 🔬 Em pesquisa |
-| H4: Fingerprinting estrutural (lide, ângulo) sobrevive à reescrita | 🔬 Em pesquisa |
-
-### Catálogo de Evidências (SQLite)
-
-| Campo | Descrição |
-|-------|-----------|
-| `hash_id` | Hash SHA-256 da URL original |
-| `portal` | Veículo de origem (anonimizado em publicações) |
-| `original_text` | Texto coletado para análise |
-| `rewritten_sample` | Amostra reescrita para fingerprinting |
-| `fingerprint_score` | Pontuação de similaridade estrutural |
-| `owasp_category` | Categorização OWASP do vetor identificado |
-
-> Todas as amostras são armazenadas localmente em ambiente controlado e **nunca são publicadas, redistribuídas ou comercializadas**.
+> 🔒 **Princípio aplicado:** o scraper respeita um intervalo mínimo de **1,5 segundo** entre requisições para não sobrecarregar o servidor da Arquidiocese.
 
 ---
 
-## 📊 Módulo 4 — Recomendações de Hardening
+## 📊 Módulo 3 — Estruturação dos Horários
 
-Com base nas evidências coletadas, o projeto produz um conjunto de recomendações técnicas para portais jornalísticos:
+A tabela de celebrações é extraída e normalizada, preservando todas as informações pastorais.
 
-### Recomendações Defensivas
+### Estrutura de Cada Celebração
 
-| # | Recomendação | Camada |
-|---|--------------|--------|
-| 1 | Implementar rate limiting por IP/UA (nginx, Cloudflare) | Edge |
-| 2 | Reduzir conteúdo full-text no RSS (apenas resumos) | Aplicação |
-| 3 | Adotar Cloudflare Bot Management ou similar | Edge |
-| 4 | Adicionar JavaScript challenges em rotas críticas | Edge |
-| 5 | Implementar fingerprinting passivo (TLS, JA3) | Edge |
-| 6 | Watermarking estatístico no texto publicado | Aplicação |
-| 7 | Monitoramento de republicação via reverse image search | Operacional |
-| 8 | Termos de uso explícitos sobre scraping (LGPD/Lei 9.279) | Jurídico |
+| Campo | Descrição | Exemplo |
+|-------|-----------|---------|
+| `tipo` | Tipo de celebração | Missa, Adoração, Confissão |
+| `dia` | Dia da semana | Domingo, Sábado, Quarta-feira |
+| `horario` | Horário | 19:00, 08:00 |
+| `observacoes` | Observações adicionais | "19h00", "Capela X", "1º domingo" |
+
+### Exemplo Real — Catedral
+
+| Tipo | Dia | Horário | Observações |
+|------|-----|---------|-------------|
+| Missa | Domingo | 08:00 | — |
+| Missa | Domingo | 09:30 | — |
+| Missa | Domingo | 18:00 | — |
+| Missa | Domingo | 19:30 | — |
+| Missa | Sábado | 18:00 | — |
+| Missa | Segunda-feira | 19:00 | — |
+| Missa | Terça a Quinta | 12:00 | 19h00 (adicional) |
+| Missa | Sexta-feira | 12:00 | — |
+
+---
+
+## 📑 Saídas Geradas
+
+### `paroquias_arqcgr.json` — Dados Estruturados
+
+```json
+[
+  {
+    "nome": "CATEDRAL NOSSA SENHORA DA ABADIA E SANTO ANTÔNIO DE PÁDUA",
+    "url": "https://arquidiocesedecampogrande.org.br/paroquias/catedral-.../",
+    "forania": "Centro",
+    "ano_criacao": "07 de abril de 1912",
+    "endereco": "Travessa Lídia Baís, 29 - Centro - CEP 79003-120 - Campo Grande/MS",
+    "telefone": "(67) 3321-9886",
+    "email": "catedral.santoantonio@hotmail.com",
+    "celebracoes": [
+      { "tipo": "Missa", "dia": "Domingo", "horario": "08:00", "observacoes": "" },
+      { "tipo": "Missa", "dia": "Sábado", "horario": "18:00", "observacoes": "" }
+    ]
+  }
+]
+```
+
+### `paroquias_arqcgr.csv` — Planilha
+
+| Paróquia | Forania | Endereço | Telefone | E-mail | Tipo | Dia | Horário | Obs. | URL |
+|----------|---------|----------|----------|--------|------|-----|---------|------|-----|
+
+> Encoding **UTF-8 com BOM** e delimitador **ponto-e-vírgula** — abre direto no Excel e no Numbers sem perder acentuação.
 
 ---
 
 ## ⚙️ Requisitos
 
 ```
-Python >= 3.11
+Python >= 3.9
 requests >= 2.31.0
 beautifulsoup4 >= 4.12.0
 lxml >= 4.9.0
-python-dotenv >= 1.0.0
-APScheduler >= 3.10.0
 ```
 
 ---
@@ -206,86 +197,67 @@ APScheduler >= 3.10.0
 ### 1. Preparar o ambiente
 
 ```bash
-cd ~/Documents/newssec_scanner
+cd ~/Documents/lista\ igreja
 
-python3 -m venv venv
-source venv/bin/activate            # macOS/Linux
-.\venv\Scripts\Activate.ps1         # Windows
+# Opção A — ambiente virtual (recomendado)
+python3 -m venv .venv
+source .venv/bin/activate            # macOS/Linux
+.\.venv\Scripts\Activate.ps1         # Windows
 
 pip install -r requirements.txt
+
+# Opção B — instalar global (macOS)
+pip3 install requests beautifulsoup4 lxml --break-system-packages
 ```
 
-### 2. Configurar variáveis
+### 2. Executar o scraper
 
 ```bash
-cp .env.example .env
+python3 scraper_arqcgr.py
 ```
 
-Edite o `.env` com as configurações de coleta e análise.
+### 3. Acompanhar o progresso
 
-### 3. Executar testes
-
-```bash
-# Testar reconhecimento passivo
-python test_recon.py
-
-# Testar análise de fingerprint
-python test_analyzer.py
+```
+==> Lendo lista de paroquias: https://arquidiocesedecampogrande.org.br/nossas-paroquias/
+    54 paroquias encontradas.
+[1/54] CATEDRAL NOSSA SENHORA DA ABADIA E SANTO ANTÔNIO DE PÁDUA
+    10 celebracoes extraidas
+[2/54] PARÓQUIA NOSSA SENHORA DA ABADIA (SANTUÁRIO)
+    8 celebracoes extraidas
+...
+==> JSON salvo em: paroquias_arqcgr.json
+==> CSV salvo em: paroquias_arqcgr.csv
+==> Concluido! 54 paroquias, ~400 celebracoes no total.
 ```
 
-### 4. Rodar auditoria completa
-
-```bash
-# Modo único (1 ciclo)
-python main.py --once
-
-# Modo contínuo (monitoramento longitudinal)
-python main.py
-```
+> ⏱️ **Tempo estimado:** ~1 minuto e 30 segundos (54 paróquias × 1,5s de delay + tempo de rede).
 
 ---
 
-## 📑 Princípios Éticos da Pesquisa
+## 🛡️ Boas Práticas Aplicadas
 
-Esta pesquisa segue rigorosamente os seguintes princípios:
+Esta ferramenta segue rigorosamente os seguintes princípios:
 
-1. ✅ **Responsible Disclosure** — todos os portais identificados serão notificados antes de qualquer publicação
-2. ✅ **Não-Invasividade** — probes respeitam intervalos mínimos e não causam impacto nos servidores
-3. ✅ **Não-Redistribuição** — nenhum conteúdo coletado é publicado, vendido ou compartilhado
-4. ✅ **Anonimização** — nomes dos portais são anonimizados em publicações até autorização explícita
-5. ✅ **Conformidade LGPD** — nenhum dado pessoal é coletado ou processado
-6. ✅ **Aprovação Institucional** — projeto vinculado ao Laboratório Inovisão / UCDB
-
----
-
-## 📚 Fundamentação Teórica
-
-### Referências Centrais
-
-- **OWASP API Security Top 10** — particularmente API4:2023 (Unrestricted Resource Consumption)
-- **OWASP Web Security Testing Guide v4.2** — métodos de teste para coleta automatizada
-- **MITRE ATT&CK** — tática TA0001 (Initial Access) e técnicas relacionadas a web scraping
-- **NIST SP 800-115** — Technical Guide to Information Security Testing
-- **Lei nº 9.279/96** — Concorrência desleal aplicada a aproveitamento de conteúdo
-- **Lei nº 9.610/98** — Direitos autorais sobre apuração jornalística
-- **LGPD (Lei nº 13.709/18)** — Para tratamento de dados durante a pesquisa
-
-### Trabalhos Relacionados
-
-- Imperva Bad Bot Report (2024) — distribuição de tráfego automatizado em mídia
-- Cloudflare Radar — análise de bot traffic em sites jornalísticos
-- ACM CCS / USENIX Security — papers sobre scraping detection e watermarking de texto
+1. ✅ **Rate Limiting Próprio** — delay de 1,5s entre requisições para não sobrecarregar o servidor
+2. ✅ **Retry com Backoff Exponencial** — 3 tentativas com intervalos crescentes (2s, 4s, 6s)
+3. ✅ **Tolerância a Falhas** — uma paróquia que falhe não interrompe o processamento das demais
+4. ✅ **User-Agent Identificável** — não tenta mascarar o tipo de cliente
+5. ✅ **Uso Não-Comercial** — projeto pessoal para fins informativos e pastorais
+6. ✅ **Dados Públicos** — apenas informações já abertas no site oficial da Arquidiocese
 
 ---
 
-## 🎯 Potencial de Publicação
+## 🎯 Casos de Uso
 
-| Tema | Veículo Alvo |
-|------|--------------|
-| Content laundering via LLMs em mídia brasileira | SBSeg / SBSI |
-| Fingerprinting estrutural de notícias | WCAMA / SIBGRAPI |
-| Mapeamento de postura de segurança em portais regionais | Revista Brasileira de Computação Aplicada |
-| Recomendações de hardening pra mídia digital | RBSeg / Qualis B+ |
+| Aplicação | Descrição |
+|-----------|-----------|
+| **App de Missas** | Base de dados para aplicativo mobile com horários por bairro |
+| **Bot WhatsApp/Telegram** | Chatbot que responde "qual missa mais próxima?" |
+| **Site Pastoral** | Página estática consolidada com todas as paróquias |
+| **Análise Pastoral** | Distribuição geográfica de celebrações por região |
+| **Mapa Interativo** | Visualização das paróquias por forania |
+| **Integração com Google Maps** | Geolocalização e rotas para fiéis |
 
 ---
 
@@ -293,10 +265,12 @@ Esta pesquisa segue rigorosamente os seguintes princípios:
 
 | Problema | Solução |
 |----------|---------|
-| `ModuleNotFoundError` | Ative o venv e reinstale dependências |
-| Probe retorna 403 | WAF detectado — comportamento esperado, registre no relatório |
-| Probe retorna lista vazia | Site usa JS rendering — registre como defesa ativa |
-| Erro de tabela SQLite | Apague `evidencias.db` para recriar schema |
+| `ModuleNotFoundError` | Ative o venv e rode `pip install -r requirements.txt` |
+| `externally-managed-environment` (macOS) | Use `--break-system-packages` ou crie um venv |
+| Timeout em alguma paróquia | O retry automático tenta 3 vezes; se falhar, é registrado no JSON |
+| CSV com acentos errados no Excel | Importe via "Dados → De Texto/CSV" escolhendo UTF-8 e `;` |
+| Site mudou de estrutura | Ajuste os seletores em `extrair_celebracoes` e `extrair_info_paroquia` |
+| Script aparenta estar parado | Normal — está respeitando o delay de 1,5s entre requisições |
 
 ---
 
@@ -304,35 +278,50 @@ Esta pesquisa segue rigorosamente os seguintes princípios:
 
 | Tecnologia | Função |
 |------------|--------|
-| **Python 3.11+** | Linguagem principal |
-| **requests** | Probes HTTP |
-| **BeautifulSoup4** | Parser HTML |
-| **lxml** | Parser XML para RSS |
-| **APScheduler** | Agendamento de auditorias longitudinais |
-| **SQLite3** | Catálogo de evidências |
-| **DeepSeek API** | Análise de fingerprint via LLM |
-| **Docker** | Ambiente isolado de pesquisa |
+| **Python 3.9+** | Linguagem principal |
+| **requests** | Cliente HTTP com retry |
+| **BeautifulSoup4** | Parser de HTML |
+| **lxml** | Backend de parsing de alta performance |
+| **csv (stdlib)** | Geração de planilha CSV |
+| **json (stdlib)** | Serialização estruturada |
+| **re (stdlib)** | Extração via regex |
 
 ---
 
-## ⚠️ Aviso Importante
+## 🗺️ Roadmap
 
-Esta ferramenta é **estritamente para fins de pesquisa acadêmica em segurança da informação**.
-
-- ❌ **Não use para republicar conteúdo de terceiros** — isso configura violação de direitos autorais (Lei 9.610/98) e concorrência desleal (Lei 9.279/96)
-- ❌ **Não use contra alvos sem autorização explícita** ou fora do escopo de pesquisa documentado
-- ✅ **Use para auditar seus próprios portais** ou em pesquisa com responsible disclosure
-- ✅ **Use para estudar mecanismos de defesa** e implementar contramedidas
-
-> O autor não se responsabiliza por uso indevido. A ferramenta é distribuída sob licença MIT para fins educacionais.
+- [x] Listagem completa das 54 paróquias
+- [x] Extração de horários de celebrações em formato estruturado
+- [x] Exportação JSON + CSV
+- [x] Tratamento de erros e retentativas
+- [ ] Geocodificação automática de endereços (lat/lng)
+- [ ] Detecção automática de mudanças no site (diff entre execuções)
+- [ ] Integração com Google Calendar (gerar `.ics`)
+- [ ] API REST consultável (FastAPI)
+- [ ] Dashboard web com mapa interativo
+- [ ] Bot Telegram para consulta de missas próximas
 
 ---
 
-## 👨‍🔬 Equipe de Pesquisa
+## ⚠️ Aviso
+
+Esta ferramenta é destinada ao **uso pessoal e pastoral**.
+
+- ✅ **Use para fins informativos** — apoio à vida pastoral, divulgação de horários
+- ✅ **Use para projetos pessoais** — apps, bots, sites estáticos
+- ❌ **Não redistribua os dados como produto comercial** sem autorização da Arquidiocese
+- ❌ **Não sobrecarregue o servidor** — respeite o delay configurado (1,5s)
+- 📞 **Em caso de dúvida sobre uso institucional**, consulte a Arquidiocese de Campo Grande
+
+> Os dados pertencem à Arquidiocese de Campo Grande e podem mudar a qualquer momento. Sempre confirme horários diretamente com a paróquia antes de divulgar publicamente.
+
+---
+
+## 👨‍💻 Autor
 
 | Nome | Função | Contato |
 |------|--------|---------|
-| **George Emannuel Guedes de Carvalho** | Pesquisador principal | ra196379@ucdb.br |
+| **George Emannuel Guedes de Carvalho** | Desenvolvedor | ra196379@ucdb.br |
 
 **Estudante de Ciência da Computação — UCDB**
 **Pesquisador no Laboratório Inovisão**
@@ -343,16 +332,18 @@ Campo Grande — MS, Brasil
 
 ## 📄 Licença
 
-Este projeto está sob a licença **MIT** para fins de pesquisa acadêmica e educacional. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+Este projeto está sob a licença **MIT** para uso pessoal e pastoral. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+
+Os dados coletados pertencem à Arquidiocese de Campo Grande e devem ser usados com respeito à fonte original.
 
 ---
 
 <div align="center">
 
-**🔒 NewsSecScan** — Pesquisa em Segurança Web Jornalística
+**⛪ ArqCGR Scraper** — Mapeamento Pastoral Automatizado
 
-Laboratório Inovisão · UCDB · Campo Grande, MS
+Campo Grande · MS · Brasil
 
-*Pesquisa conduzida sob princípios de responsible disclosure*
+*"Ide e fazei discípulos de todas as nações"* — Mt 28,19
 
 </div>
